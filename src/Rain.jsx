@@ -8,6 +8,7 @@ class MatrixRain extends Component {
     this.rainEffect = null;
     this.currentTextDrops = []
     this.dropsNeeded = []
+    this.colors = []
     this.framesAfterLastNav = 0
     this.state = {
       rainActive: true,
@@ -16,7 +17,7 @@ class MatrixRain extends Component {
       page: 0,
       texts: [[]],
       columns: 0,
-      fontSize: window.innerWidth < 400 ? 11 : 18,
+      fontSize: window.innerWidth < 400 ? 9 : 18,
     };
   }
   componentDidMount() {
@@ -30,38 +31,45 @@ class MatrixRain extends Component {
 
     this.characters = 'ABCDEFGHIJKLMNOPQRSTUVWYZ0abcdefghijklmnopqrstuvwyz123456789@!?;#'.split('');
     let texts = this.fillTexts();
-    this.drops = Array.from({ length: canvas.width / fontSize}, () =>  Array.from({ length: 5}, () => Math.round(Math.random()*canvas.height/fontSize)));
+    this.drops = Array.from({ length: canvas.width / fontSize}, () =>  Array.from({ length: 10}, () => Math.round(Math.random()*canvas.height/fontSize)));
     this.fillDrops(texts,0,canvas.width / fontSize);
     this.startRain(ctx, canvas.width, canvas.height, fontSize);
 
     window.addEventListener('resize', this.handleResize);
   }
   fillTexts(){
-    let navBarOffsets = [20,20+(4*this.state.fontSize)+20*1,20+(10*this.state.fontSize)+20*2,20+(15*this.state.fontSize)+20*3]
+    let navBarOffsets = [20,20+(4*this.state.fontSize)+20*1,20+(10*this.state.fontSize)+20*2,20+(15*this.state.fontSize)+20*3,20+(24*this.state.fontSize)+20*4]
+    let age = new Date().getFullYear() - new Date("2004-12-06").getFullYear() - (new Date() < new Date(new Date().getFullYear(), 11, 6) ? 1 : 0);
     let texts = [
-      [{ text: "Kokas Márk", x: Math.round(window.innerWidth / 2), y: 350,centered: true },
+      [{ text: "Kokas Márk", x: Math.round(window.innerWidth / 2), y: 350,centered: true, link:"" },
       { text: "Full stack developer", x: Math.round(window.innerWidth / 2), y: 380,centered: true },
+      { text: "Győr, Hungary", x: Math.round(window.innerWidth / 2), y: 410,centered: true },
+      { text: `${age} years old`, x: Math.round(window.innerWidth / 2), y: 450,centered: true },
       { text: "Home", x: navBarOffsets[0], y: 40, page: 0 },
       { text: "Skills", x: navBarOffsets[1], y: 40, page: 1 },
       { text: "Links", x: navBarOffsets[2], y: 40, page: 2 },
-      { text: "Education", x: navBarOffsets[3], y: 40, page: 3 }],
+      { text: "Education", x: navBarOffsets[3], y: 40, page: 3 },
+      { text: "Projects", x: navBarOffsets[4], y: 40, page: 4 }],
 
-      [{ text: "React.js", x: Math.round(window.innerWidth / 2)-100, y: 300,centered: true },
-      { text: "Node.js", x: Math.round(window.innerWidth / 2)+100, y: 350,centered: true },
-      { text: "C#", x: Math.round(window.innerWidth / 2)-100, y: 400,centered: true },
-      { text: ".Net Maui", x: Math.round(window.innerWidth / 2)+100, y: 440,centered: true },
+      [{ text: "React.js", x: Math.round(window.innerWidth / 2)-100, y: 300,centered: true, color: "#61DBFB" },
+      { text: "Node.js", x: Math.round(window.innerWidth / 2)+100, y: 350,centered: true, color: "#70a55d" },
+      { text: "C#", x: Math.round(window.innerWidth / 2)-100, y: 400,centered: true, color: "#a279dd" },
+      { text: ".Net Maui", x: Math.round(window.innerWidth / 2)+100, y: 440,centered: true, color: "#6746db" },
       { text: "Web design", x: Math.round(window.innerWidth / 2)-100, y: 500,centered: true },
       { text: "Home", x: navBarOffsets[0], y: 40, page: 0 },
       { text: "Skills", x: navBarOffsets[1], y: 40, page: 1 },
       { text: "Links", x: navBarOffsets[2], y: 40, page: 2 },
-      { text: "Education", x: navBarOffsets[3], y: 40, page: 3 }],
+      { text: "Education", x: navBarOffsets[3], y: 40, page: 3 },
+      { text: "Projects", x: navBarOffsets[4], y: 40, page: 4 }],
 
-      [{ text: "Github: @kokasmark", x: Math.round(window.innerWidth / 2), y: 300,centered: true },
+      [{ text: "Github: ", x: Math.round(window.innerWidth / 2)-4*this.state.fontSize, y: 300,centered: true },
+        { text: "@kokasmark", x: Math.round(window.innerWidth / 2)+5*this.state.fontSize, y: 300,centered: true,link:"https://github.com/kokasmark/" },
       { text: "Email: mark.kokas04@gmail.com", x: Math.round(window.innerWidth / 2), y: 350,centered: true },
       { text: "Home", x: navBarOffsets[0], y: 40, page: 0 },
       { text: "Skills", x: navBarOffsets[1], y: 40, page: 1 },
       { text: "Links", x: navBarOffsets[2], y: 40, page: 2 },
-      { text: "Education", x: navBarOffsets[3], y: 40, page: 3 }],
+      { text: "Education", x: navBarOffsets[3], y: 40, page: 3 },
+      { text: "Projects", x: navBarOffsets[4], y: 40, page: 4 }],
 
       [{ text: "2019-2024", x: Math.round(window.innerWidth / 2), y: 300, centered: true },
         { text: "SZC Jedlik Ányos Szakközépiskola", x: Math.round(window.innerWidth / 2), y: 350, centered: true },
@@ -70,7 +78,23 @@ class MatrixRain extends Component {
         { text: "Home", x: navBarOffsets[0], y: 40, page: 0 },
         { text: "Skills", x: navBarOffsets[1], y: 40, page: 1 },
         { text: "Links", x: navBarOffsets[2], y: 40, page: 2 },
-        { text: "Education", x: navBarOffsets[3], y: 40, page: 3 }],
+        { text: "Education", x: navBarOffsets[3], y: 40, page: 3 },
+        { text: "Projects", x: navBarOffsets[4], y: 40, page: 4 }],
+
+        [ 
+          { text: "Csharp Voxel Engine", x: Math.round(window.innerWidth / 2)+200, y: Math.round(window.innerHeight / 2) + 200, link: 'https://github.com/kokasmark/CsharpVoxelEngine',centered: true },
+          { text: "Flexify", x: Math.round(window.innerWidth / 2)-200, y: Math.round(window.innerHeight / 2) - 300, link: 'https://github.com/kokasmark/flexify',centered: true },
+          { text: "Flexify Mobile", x: Math.round(window.innerWidth / 2)+200, y: Math.round(window.innerHeight / 2), link: 'https://github.com/kokasmark/flexifymobile',centered: true },
+          { text: "Neptune", x: Math.round(window.innerWidth / 2)+200, y: Math.round(window.innerHeight / 2) - 200, link: 'https://github.com/kokasmark/neptune',centered: true },
+          { text: "Python Raytracer", x: Math.round(window.innerWidth / 2)-200, y: Math.round(window.innerHeight / 2) + 100, link: 'https://github.com/kokasmark/python-voxel-raycaster',centered: true },
+          { text: "Sandgine", x: Math.round(window.innerWidth / 2)-200, y: Math.round(window.innerHeight / 2) - 100, link: 'https://github.com/kokasmark/sandgine',centered: true },
+          { text: "Home", x: navBarOffsets[0], y: 40, page: 0 },
+          { text: "Skills", x: navBarOffsets[1], y: 40, page: 1 },
+          { text: "Links", x: navBarOffsets[2], y: 40, page: 2 },
+          { text: "Education", x: navBarOffsets[3], y: 40, page: 3 },
+          { text: "Projects", x: navBarOffsets[4], y: 40, page: 4 }]
+        
+       
     ];
 
     texts.forEach((column) => {
@@ -85,12 +109,13 @@ class MatrixRain extends Component {
   }
   fillDrops(texts, page, columns) {
     this.dropsNeeded = Array.from({ length: columns }, () => 0);
+    this.colors = Array.from({ length: columns }, () => "#759abc");
     if (!texts[page]) return;
 
     for (let i = 0; i < columns; i++) {
         let foundText = false;
 
-        for (let { text, x } of texts[page]) {
+        for (let { text, x,link,t_page,color } of texts[page]) {
             const colX = i * this.state.fontSize;
 
             if (colX >= x && colX < x + text.length * this.state.fontSize) {
@@ -134,7 +159,7 @@ handlePageClick = (page) => {
 
 renderOverlayElements() {
   return this.state.texts[this.state.page].map((item, index) => (
-    <div
+    <a
       key={index}
       onClick={() => (item.page == undefined ? {} : this.handlePageClick(item.page))}
       onPointerMove={item.page == undefined ? (e)=>this.handleHover(e) : ()=>{}}
@@ -149,6 +174,8 @@ renderOverlayElements() {
         padding: 2,
         zIndex: 10
       }}
+      href={item.link ? item.link : null}
+      target='blank'
     />
   ));
 }
@@ -177,17 +204,31 @@ renderOverlayElements() {
     const currentTexts = this.state.texts[this.state.page];
 
     try{
-    for (let { text, x, y, page } of currentTexts) {
+    for (let { text, x, y, page,link,color } of currentTexts) {
         const colX = i * fontSize;
         if (colX >= x && colX < x + text.length * fontSize) {
             const dropPositionY = Math.floor(dropY * fontSize);
             if (Math.abs(dropPositionY - y) < fontSize/2) {
                 const charIndex = Math.floor((colX - x) / fontSize);
 
-                ctx.fillStyle = (page !== undefined && page === this.state.page) 
-                    ? "#cd5a68" 
-                    : "#759abc";
-                return text[charIndex];
+                if((page !== undefined && page === this.state.page)){
+                    ctx.fillStyle = "#cd5a68"
+                    this.colors[i] = "#cd5a68"
+                }
+                else if(link != undefined){
+                  ctx.fillStyle = "#cd5a68"
+                  this.colors[i] = "#cd5a68"
+                }
+                else if(color != undefined){
+                  ctx.fillStyle = color
+                  this.colors[i] = color
+                }
+                else{
+                  ctx.fillStyle = "#759abc"
+                  this.colors[i] = "#759abc"
+                }
+                return text[charIndex]
+                
             }
         }
     }
@@ -224,11 +265,13 @@ renderOverlayElements() {
                 }
                 count++;
                 } else if( j <= this.dropsNeeded[i]) {
-                    ctx.fillStyle = '#759abc';
-                    let text = this.characters[Math.floor(Math.random() * this.characters.length)];
+                    ctx.fillStyle = this.colors[i];
+                    let names = ["Home ","Skills ", "Links ", "Education ", "Projects "]
+                    let text = names[this.state.page].split('')[(i+dropY%names[this.state.page].length)%names[this.state.page].length]
                     if(this.state.start){
                       text = 'Welcome '.split('')[(i+dropY%8)%8]
                     }
+                    
                     ctx.fillText(text, i * fontSize, dropY * fontSize);
     
                     if (dropY * fontSize > height && Math.random() > 0.95) {
